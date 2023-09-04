@@ -58,8 +58,6 @@ class Net(nn.Module):
     def __init__(self, n):
         super().__init__()
         self.n = n
-        self.params1 = nn.Parameter(torch.zeros((n+1)*4))
-        self.params2 = nn.Parameter(torch.zeros(n*4))
         self.cir1 = QubitCircuit(self.n+1)
         self.cir2 = QubitCircuit(self.n+1)
         self.cir3 = QubitCircuit(self.n+1)
@@ -67,15 +65,13 @@ class Net(nn.Module):
         self.circuit1()
         self.circuit2()
         self.circuit3()
-        #self.l1 = nn.Linear(2, 4)
-        #self.l2 = nn.Linear(4, 2)
+
 
     def circuit1(self):
         #self.cir1.rzlayer()
         #self.cir1.rzlayer()
         self.cir1.x(4)
         self.cir1.rylayer()
-
         #self.cir1.rxlayer(encode=False)
         #self.cir1.rzlayer(encode=False)
         self.cir1.cnot(0, 1)

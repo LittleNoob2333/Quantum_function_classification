@@ -1,7 +1,11 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from deepquantum import *
+
+
+
+
+
 class NetDJ(nn.Module):
     def __init__(self, n):
         super().__init__()
@@ -58,83 +62,35 @@ class Net(nn.Module):
     def __init__(self, n):
         super().__init__()
         self.n = n
-        self.params1 = nn.Parameter(torch.zeros((n+1)*4))
-        self.params2 = nn.Parameter(torch.zeros(n*4))
         self.cir1 = QubitCircuit(self.n+1)
         self.cir2 = QubitCircuit(self.n+1)
-        self.cir3 = QubitCircuit(self.n+1)
-        self.u2list = [0, 1, 2, 3, ]
         self.circuit1()
         self.circuit2()
-        self.circuit3()
-        #self.l1 = nn.Linear(2, 4)
-        #self.l2 = nn.Linear(4, 2)
 
     def circuit1(self):
-        #self.cir1.rzlayer()
-        #self.cir1.rzlayer()
-        self.cir1.x(4)
+        self.cir1.rzlayer()
         self.cir1.rylayer()
-
-        #self.cir1.rxlayer(encode=False)
-        #self.cir1.rzlayer(encode=False)
+        self.cir1.rzlayer()
         self.cir1.cnot(0, 1)
-        self.cir1.cnot(2, 3)
-        #self.cir1.barrier()
-        #self.cir1.rylayer()
         self.cir1.cnot(1, 2)
-        self.cir1.cnot(3, 4)
-        self.cir1.barrier()
-        ''''
-       
-        self.cir1.barrier()
-        '''
-
-        '''
-        self.cir1.rylayer()
-        #self.cir1.rxlayer(encode=False)
-        #self.cir1.rzlayer(encode=False)
-        #self.cir1.rzlayer()
-        self.cir1.cnot(0, 1)
         self.cir1.cnot(2, 3)
-
-        #self.cir1.cnot(1, 3)
-        #self.cir1.cnot(1, 4)
-        self.cir1.barrier()
-        #self.cir1.rzlayer()
         
-        self.cir1.rylayer()
+    def circuit2(self):
+        self.cir1.rzlayer([0,1,2,3,])
+        self.cir1.rylayer([0,1,2,3,])
+        self.cir1.rzlayer([0,1,2,3,])
+        self.cir1.cnot(0, 1)
+        self.cir1.cnot(1, 2)
+        #self.cir1.cnot(2, 3)
         '''
-    def circuit3(self):
-        self.cir3.x(0)
-        self.cir3.x(1)
-        self.cir3.x(2)
-        self.cir3.x(3)
-    def circuit2(self):        
-        #self.cir2.rzlayer()
-        #self.cir2.rzlayer(self.u2list)
-        #self.cir2.rxlayer(self.u2list, encode=False)
-        #self.cir2.rzlayer(self.u2list,encode=False)
-        #self.cir2.rzlayer(self.u2list, encode=False)
-        self.cir2.rylayer(self.u2list, encode=False)
-        #self.cir2.rylayer(self.u2list, encode=False)
-
-        #self.cir2.rylayer(self.u2list, encode=False)
-        self.cir2.cnot(0, 1)
-        self.cir2.cnot(2, 3)
-
-        #self.cir2.rylayer(self.u2list, encode=False)
-        self.cir2.cnot(1, 2)
-        #self.cir2.cnot(1, 2)
-        #self.cir2.cnot(1, 3)
-        self.cir2.barrier()
-        #self.cir2.rzlayer()
-
+        for i in range(self.n):
+            self.cir2.rzlayer(i)
+            self.cir2.rylayer(i)
+            self.cir2.rzlayer(i)     
+            self.cir2.x(i)
+        '''
     def forward(self, oracles):
         out = []
-        #print(self.params2)
-        #self.cir1(self.params1)
-        #self.cir2(self.params2)
         for oracle in oracles:
             cir_o = QubitCircuit(self.n+1)
             cir_o.any(oracle, name='dj_oracle')
@@ -144,10 +100,6 @@ class Net(nn.Module):
             x = torch.abs(state[0,0]) ** 2 + torch.abs(state[1,0]) ** 2
             logits = torch.stack([x , 1 - x], dim=-1) # p(00...0), 1-p(00...0) 
             out.append(logits)
-            #o = self.l1(logits)
-            #o = F.relu(o)
-            #o = self.l2(o)
-            #logits = F.softmax(o)
             
         return torch.stack(out), cir
     

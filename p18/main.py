@@ -12,7 +12,7 @@ from model import Net, NetDJ
 # global settings
 n = 4
 batch_size = 8
-num_epochs = 250
+num_epochs = 100
 
 
 # load datatset
@@ -51,7 +51,7 @@ def add_samples(l:list[int],p1_train_X,p1_train_Y):
 
 # 对0样本进行过采样
 l = random.sample(list_0,c1-c2)
-add_samples(l,p1_train_X,p1_train_Y)
+#add_samples(l,p1_train_X,p1_train_Y)
 
 # 对0 1 样本同时进行采样
 num = 10
@@ -180,7 +180,7 @@ with open(train_log_filepath, "w") as f:
 f.close()
 
 if len(list(net.parameters())) != 0:
-    optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
+    optimizer = torch.optim.Adam(net.parameters(), lr=0.01)
     criterion = cross_entropy_loss # nn.CrossEntropyLoss()
     log = OptimizerLog()
     for epoch in range(num_epochs):
